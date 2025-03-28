@@ -1,0 +1,56 @@
+---
+- name: Install X11 applications on AlmaLinux 9
+  hosts: localhost
+  become: true
+  tasks:
+    - name: Update package cache
+      ansible.builtin.dnf:
+        update_cache: true
+      when: ansible_os_family == 'RedHat'
+
+    - name: Install X Window System base packages
+      ansible.builtin.dnf:
+        name:
+          - xorg-x11-server-Xorg
+          - xorg-x11-xauth
+          - xorg-x11-utils
+          - xorg-x11-apps
+        state: present
+      when: ansible_os_family == 'RedHat'
+
+    - name: Install common X11 applications (optional - add/remove as needed)
+      ansible.builtin.dnf:
+        name:
+          - xterm
+          - firefox # Example of a GUI application
+          - gedit # Example of a GUI application
+          - xclock
+          - xeyes
+          - xcalc
+          - xdpyinfo
+          - xev
+        state: present
+      when: ansible_os_family == 'RedHat'
+
+    - name: Install a display manager (optional - choose one)
+      ansible.builtin.dnf:
+        name:
+          - gdm # GNOME Display Manager
+          #- lightdm # LightDM (alternative)
+          #- sddm # SDDM (alternative)
+        state: present
+      when: ansible_os_family == 'RedHat'
+
+    - name: Enable and start the display manager (if installed)
+      ansible.builtin.systemd:
+        name: gdm
+        state: started
+        enabled: true
+      when: ansible_os_family == 'RedHat' and "'gdm' in ansible_facts.packages"
+
+    - name: Set default target to graphical (optional)
+      ansible.builtin.systemd:
+        name: graphical.target
+        state: started
+        enabled: true
+      when: ansible_os_family == 'RedHat'

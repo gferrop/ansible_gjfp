@@ -1,0 +1,15 @@
+---
+- name: Install mc (netcat) on AlmaLinux
+  hosts: localhost  # Specify the target hosts or group here
+  become: true # Required for package installation
+  tasks:
+    - name: Update package cache
+      ansible.builtin.dnf:
+        update_cache: true
+      when: ansible_os_family == 'RedHat'
+
+    - name: Install mc (netcat)
+      ansible.builtin.dnf:
+        name: mc
+        state: present
+      when: ansible_os_family == 'RedHat'
